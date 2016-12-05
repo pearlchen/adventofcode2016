@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -95,6 +96,7 @@ func main() {
 				break
 			}
 			// add coords to the visited list for later comparision
+			// TODO: a better way to do this??
 			visited = append(visited, here)
 		}
 
@@ -113,15 +115,23 @@ func main() {
 
 }
 
-// loop through visited and check if there's a coord match
-// TODO: a better way to do this besides a range loop?
+// Search visited array and check if there's a coord match
+// Reference: https://golang.org/pkg/sort/#Search
 func checkIfVisited(coord string, visited []string) bool {
 
-	for _, visitedCoord := range visited {
-		if coord == visitedCoord {
-			return true
-		}
+	//sort a slice of strings in increasing (ascending) order
+	sort.Strings(visited)
+
+	// return the smallest index i such that visited[i] >= coord
+	i := sort.Search(len(visited), func(i int) bool {
+		return visited[i] >= coord
+	})
+
+	// check the element at the smallest index and see if it matches coord
+	if i < len(visited) && visited[i] == coord {
+		return true
 	}
 
+	// no match
 	return false
 }
