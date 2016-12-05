@@ -14,12 +14,12 @@ func main() {
 	// route := "R2, L3" // expect 5
 	// route := "R2, R2, R2" // expect 2
 	// route := "R5, L5, R5, R3" // expect 12
-	route := "R8, R4, R4, R8" // expect 4
+	// route := "R8, R4, R4, R8" // expect 4
 
 	// original directions from http://adventofcode.com/2016/day/1
 	// final answer to expect = 241
 	// TODO: Accept route as a value typed in somewhere
-	// route := "R1, R1, R3, R1, R1, L2, R5, L2, R5, R1, R4, L2, R3, L3, R4, L5, R4, R4, R1, L5, L4, R5, R3, L1, R4, R3, L2, L1, R3, L4, R3, L2, R5, R190, R3, R5, L5, L1, R54, L3, L4, L1, R4, R1, R3, L1, L1, R2, L2, R2, R5, L3, R4, R76, L3, R4, R191, R5, R5, L5, L4, L5, L3, R1, R3, R2, L2, L2, L4, L5, L4, R5, R4, R4, R2, R3, R4, L3, L2, R5, R3, L2, L1, R2, L3, R2, L1, L1, R1, L3, R5, L5, L1, L2, R5, R3, L3, R3, R5, R2, R5, R5, L5, L5, R2, L3, L5, L2, L1, R2, R2, L2, R2, L3, L2, R3, L5, R4, L4, L5, R3, L4, R1, R3, R2, R4, L2, L3, R2, L5, R5, R4, L2, R4, L1, L3, L1, L3, R1, R2, R1, L5, R5, R3, L3, L3, L2, R4, R2, L5, L1, L1, L5, L4, L1, L1, R1"
+	route := "R1, R1, R3, R1, R1, L2, R5, L2, R5, R1, R4, L2, R3, L3, R4, L5, R4, R4, R1, L5, L4, R5, R3, L1, R4, R3, L2, L1, R3, L4, R3, L2, R5, R190, R3, R5, L5, L1, R54, L3, L4, L1, R4, R1, R3, L1, L1, R2, L2, R2, R5, L3, R4, R76, L3, R4, R191, R5, R5, L5, L4, L5, L3, R1, R3, R2, L2, L2, L4, L5, L4, R5, R4, R4, R2, R3, R4, L3, L2, R5, R3, L2, L1, R2, L3, R2, L1, L1, R1, L3, R5, L5, L1, L2, R5, R3, L3, R3, R5, R2, R5, R5, L5, L5, R2, L3, L5, L2, L1, R2, R2, L2, R2, L3, L2, R3, L5, R4, L4, L5, R3, L4, R1, R3, R2, R4, L2, L3, R2, L5, R5, R4, L2, R4, L1, L3, L1, L3, R1, R2, R1, L5, R5, R3, L3, L3, L2, R4, R2, L5, L1, L1, L5, L4, L1, L1, R1"
 
 	// turn the `route` string into an array using split using both the comma and space as delimiter
 	steps := strings.Split(route, ", ")
@@ -80,23 +80,31 @@ func main() {
 		fmt.Println("   Now facing", facing.direction)
 
 		// update x or y coord
-		fmt.Println("   Walked", blocks, "block(s)")
-		coords[facing.coord] += blocks * facing.multiplier
+		fmt.Println("   Walking", blocks, "block(s)...")
 
-		// where are you at the end of step?
-		here := strconv.Itoa(coords["x"]) + "," + strconv.Itoa(coords["y"])
+		// instead of teleporting straight to end location for this step
+		// go block by block to see if it overlaps a path already taken
+		var here string
+		beenThere := false
+		for j := 0; j < blocks; j++ {
+			coords[facing.coord] += facing.multiplier
+			here = strconv.Itoa(coords["x"]) + "," + strconv.Itoa(coords["y"])
+			beenThere = checkIfVisited(here, visited)
+			if beenThere {
+				fmt.Println("   ***First repeat location:", here)
+				break
+			}
+			// add coords to the visited list for later comparision
+			visited = append(visited, here)
+		}
 
-		// compare here to where you've been before
-		beenThere := checkIfVisited(here, visited)
+		// if in a repeat location, break out of outer loop too
 		if beenThere {
-			fmt.Println("First repeat location:", here)
 			break
 		}
 
-		// add coords to the visited list for later comparision
-		visited = append(visited, here)
+		// debug output: where are you at the end of this step?
 		fmt.Println("   Now at", here)
-
 	}
 
 	// FINAL ANSWER
@@ -105,6 +113,8 @@ func main() {
 
 }
 
+// loop through visited and check if there's a coord match
+// TODO: a better way to do this besides a range loop?
 func checkIfVisited(coord string, visited []string) bool {
 
 	for _, visitedCoord := range visited {
