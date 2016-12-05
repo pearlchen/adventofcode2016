@@ -14,24 +14,25 @@ func main() {
 	// route := "R2, L3" // expect 5
 	// route := "R2, R2, R2" // expect 2
 	// route := "R5, L5, R5, R3" // expect 12
+	route := "R8, R4, R4, R8" // expect 4
 
 	// original directions from http://adventofcode.com/2016/day/1
 	// final answer to expect = 241
 	// TODO: Accept route as a value typed in somewhere
-	route := "R1, R1, R3, R1, R1, L2, R5, L2, R5, R1, R4, L2, R3, L3, R4, L5, R4, R4, R1, L5, L4, R5, R3, L1, R4, R3, L2, L1, R3, L4, R3, L2, R5, R190, R3, R5, L5, L1, R54, L3, L4, L1, R4, R1, R3, L1, L1, R2, L2, R2, R5, L3, R4, R76, L3, R4, R191, R5, R5, L5, L4, L5, L3, R1, R3, R2, L2, L2, L4, L5, L4, R5, R4, R4, R2, R3, R4, L3, L2, R5, R3, L2, L1, R2, L3, R2, L1, L1, R1, L3, R5, L5, L1, L2, R5, R3, L3, R3, R5, R2, R5, R5, L5, L5, R2, L3, L5, L2, L1, R2, R2, L2, R2, L3, L2, R3, L5, R4, L4, L5, R3, L4, R1, R3, R2, R4, L2, L3, R2, L5, R5, R4, L2, R4, L1, L3, L1, L3, R1, R2, R1, L5, R5, R3, L3, L3, L2, R4, R2, L5, L1, L1, L5, L4, L1, L1, R1"
+	// route := "R1, R1, R3, R1, R1, L2, R5, L2, R5, R1, R4, L2, R3, L3, R4, L5, R4, R4, R1, L5, L4, R5, R3, L1, R4, R3, L2, L1, R3, L4, R3, L2, R5, R190, R3, R5, L5, L1, R54, L3, L4, L1, R4, R1, R3, L1, L1, R2, L2, R2, R5, L3, R4, R76, L3, R4, R191, R5, R5, L5, L4, L5, L3, R1, R3, R2, L2, L2, L4, L5, L4, R5, R4, R4, R2, R3, R4, L3, L2, R5, R3, L2, L1, R2, L3, R2, L1, L1, R1, L3, R5, L5, L1, L2, R5, R3, L3, R3, R5, R2, R5, R5, L5, L5, R2, L3, L5, L2, L1, R2, R2, L2, R2, L3, L2, R3, L5, R4, L4, L5, R3, L4, R1, R3, R2, R4, L2, L3, R2, L5, R5, R4, L2, R4, L1, L3, L1, L3, R1, R2, R1, L5, R5, R3, L3, L3, L2, R4, R2, L5, L1, L1, L5, L4, L1, L1, R1"
 
 	// turn the `route` string into an array using split using both the comma and space as delimiter
 	steps := strings.Split(route, ", ")
 	fmt.Println("Number of steps in route:", len(steps))
 
 	// use x,y cartesian-based coordinates to keep track of path walked
-	var coords = map[string]int64{"x": 0, "y": 0}
+	var coords = map[string]int{"x": 0, "y": 0}
 
 	// define a struct for how to behave for a given direction
 	type behaviour struct {
 		direction  string // "N", "E", "S", "W"
 		coord      string // reference to x or y
-		multiplier int64  // based on cartesian plane, -1 is up, 1 is down, -1 is left, 1 is right
+		multiplier int    // based on cartesian plane, -1 is up, 1 is down, -1 is left, 1 is right
 	}
 
 	// calling this array `compass` since the positions of behaviours will "rotate around"
@@ -46,17 +47,17 @@ func main() {
 	var facing behaviour = compass[0]
 	fmt.Println("Start facing: ", facing.direction)
 
-	// start "walking" by looping through the steps
-	for i := 0; i < len(steps); i++ {
+	var visited []string //slice
 
-		var step = steps[i] //e.g. "R33"
+	// start "walking" by looping through the steps
+	for i, step := range steps {
 		fmt.Println("(", i, ")", step, ":")
 
 		// parse `step` into something useable:
-		var directionShort string = step[0:1]                //e.g. "R"
-		var blocksString = step[1:len(step)]                 //e.g. "33" (second letter to end of string)
-		blocks, err := strconv.ParseInt(blocksString, 0, 64) //convert string number to a real number e.g. 33
-		if err != nil {                                      // output error if conversion goes wrong
+		var directionShort string = step[0:1]     //e.g. "R"
+		var blocksString = step[1:len(step)]      //e.g. "33" (second letter to end of string)
+		blocks, err := strconv.Atoi(blocksString) //convert string number to a real number e.g. 33
+		if err != nil {                           // output error if conversion goes wrong
 			fmt.Println(err)
 		}
 
@@ -82,12 +83,35 @@ func main() {
 		fmt.Println("   Walked", blocks, "block(s)")
 		coords[facing.coord] += blocks * facing.multiplier
 
-		// debugging at end of step
-		fmt.Println("   Now at x:", coords["x"], ", y:", coords["y"])
+		// where are you at the end of step?
+		here := strconv.Itoa(coords["x"]) + "," + strconv.Itoa(coords["y"])
+
+		// compare here to where you've been before
+		beenThere := checkIfVisited(here, visited)
+		if beenThere {
+			fmt.Println("First repeat location:", here)
+			break
+		}
+
+		// add coords to the visited list for later comparision
+		visited = append(visited, here)
+		fmt.Println("   Now at", here)
+
 	}
 
 	// FINAL ANSWER
 	absoluteBlocks := math.Abs(float64(coords["x"])) + math.Abs(float64(coords["y"]))
 	fmt.Println("Total blocks away:", absoluteBlocks)
 
+}
+
+func checkIfVisited(coord string, visited []string) bool {
+
+	for _, visitedCoord := range visited {
+		if coord == visitedCoord {
+			return true
+		}
+	}
+
+	return false
 }
