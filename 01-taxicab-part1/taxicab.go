@@ -48,7 +48,6 @@ func main() {
 
 	// start "walking" by looping through the steps
 	for i, step := range steps {
-		// for i := 0; i < len(steps); i++ {
 		fmt.Println("(", i, ")", step, ":")
 
 		// parse `step` into something useable:
