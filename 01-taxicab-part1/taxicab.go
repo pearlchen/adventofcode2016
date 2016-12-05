@@ -47,9 +47,8 @@ func main() {
 	fmt.Println("Start facing: ", facing.direction)
 
 	// start "walking" by looping through the steps
-	for i := 0; i < len(steps); i++ {
-
-		var step = steps[i] //e.g. "R33"
+	for i, step := range steps {
+		// for i := 0; i < len(steps); i++ {
 		fmt.Println("(", i, ")", step, ":")
 
 		// parse `step` into something useable:
