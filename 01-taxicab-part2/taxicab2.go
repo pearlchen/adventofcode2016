@@ -97,6 +97,7 @@ func main() {
 			}
 			// add coords to the visited list for later comparision
 			// TODO: a better way to do this??
+			// (Try adding to sorted slice during checkIfVisited() instead of re-sorting)
 			visited = append(visited, here)
 		}
 
