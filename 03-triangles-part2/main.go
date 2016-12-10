@@ -11,8 +11,8 @@ func main() {
 	var rows [][]int
 
 	// TODO: Write tests
-	rows = parseInput(loadInput("test.txt")) // expect 6
-	// rows = parseInput(loadInput("input.txt")) // expect ??? (not 101, or 105) too low
+	// rows = parseInput(loadInput("test.txt")) // expect 6
+	rows = parseInput(loadInput("input.txt")) // expect 1577
 	columns := flipRowsToColumns(rows)
 
 	triangles := make([][]int, 0)
@@ -89,16 +89,10 @@ func getPossibleTrianglesForColumn(column []int) [][]int {
 
 	triangles := make([][]int, 0)
 
-	for i := 2; i < len(column); i++ {
-		num1 := column[i]
-		num2 := column[i-1]
-		num3 := column[i-2]
-		if (num1/100 == num2/100) && (num1/100 == num3/100) {
-			fmt.Println(num1, num2, num3)
-			// fmt.Println("   /100:", num1/100, "same!!")
-			possible := []int{num1, num2, num3}
-			triangles = append(triangles, possible)
-		}
+	// lump possible triangles by groups of 3 in a column
+	for i := 2; i < len(column); i = i + 3 {
+		possible := []int{column[i], column[i-1], column[i-2]}
+		triangles = append(triangles, possible)
 	}
 
 	return triangles
