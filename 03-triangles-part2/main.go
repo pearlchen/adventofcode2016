@@ -8,15 +8,20 @@ import (
 )
 
 func main() {
-	var triangles [][]int
+	var rows [][]int
 
 	// TODO: Write tests
-	// triangles = parseInput(loadInput("test.txt")) // expect 0
-	triangles = parseInput(loadInput("input.txt")) // expect 862
-	fmt.Println("Num triangles:", len(triangles))
+	rows = parseInput(loadInput("test.txt")) // expect 6
+	// rows = parseInput(loadInput("input.txt")) // expect ??? (not 101, or 105) too low
+	columns := flipRowsToColumns(rows)
+
+	triangles := make([][]int, 0)
+	for _, column := range columns {
+		triangles = append(triangles, getPossibleTrianglesForColumn(column)...)
+	}
 
 	// Final answer
-	fmt.Println("TOTAL VALID TRIANGLES", countValid(triangles))
+	fmt.Println("TOTAL VALID TRIANGLES", countValid(triangles), "out of", len(triangles), "possible")
 }
 
 func loadInput(filename string) string {
@@ -55,12 +60,48 @@ func parseInput(file string) [][]int {
 				}
 				splitInts[j] = numInt
 			}
-			fmt.Println(splitStrings, ">>>", splitInts)
+			// fmt.Println(splitStrings, ">>>", splitInts)
 			formatted = append(formatted, splitInts)
 		}
 	}
 
 	return formatted
+}
+
+func flipRowsToColumns(input [][]int) [][]int {
+
+	column0 := make([]int, 0)
+	column1 := make([]int, 0)
+	column2 := make([]int, 0)
+
+	// flip columns into a rows
+	for _, line := range input {
+		column0 = append(column0, line[0])
+		column1 = append(column1, line[1])
+		column2 = append(column2, line[2])
+	}
+
+	columns := [][]int{column0, column1, column2}
+	return columns
+}
+
+func getPossibleTrianglesForColumn(column []int) [][]int {
+
+	triangles := make([][]int, 0)
+
+	for i := 2; i < len(column); i++ {
+		num1 := column[i]
+		num2 := column[i-1]
+		num3 := column[i-2]
+		if (num1/100 == num2/100) && (num1/100 == num3/100) {
+			fmt.Println(num1, num2, num3)
+			// fmt.Println("   /100:", num1/100, "same!!")
+			possible := []int{num1, num2, num3}
+			triangles = append(triangles, possible)
+		}
+	}
+
+	return triangles
 }
 
 // In a valid triangle,
