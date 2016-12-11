@@ -3,30 +3,52 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"math"
 	"sort"
 	"strconv"
 	"strings"
 )
 
+type Room struct {
+	name     string
+	sectorId int
+}
+
 func main() {
 
 	// tests
 	// encryptedRooms := loadInput("test.txt")
+	// encryptedRooms := loadInput("test2.txt")
 
 	// real
 	encryptedRooms := loadInput("input.txt")
 
 	// loop through input to get sum of sector IDs for valid rooms
-	totalSum := 0
+	// totalSum := 0
+	validRooms := make([]Room, 0)
 	for _, room := range encryptedRooms {
+
 		name, sectorId, hash := parseEncryptedRoom(room)
+		// fmt.Println(name, sectorId, hash)
+
 		valid := validate(name, hash)
 		if valid {
-			totalSum += sectorId
+			// totalSum += sectorId
+			validRooms = append(validRooms, Room{name: name, sectorId: sectorId})
 		}
-		fmt.Println(name, sectorId, hash, valid)
+
 	}
-	fmt.Println("TOTAL SUM:", totalSum)
+	// fmt.Println("TOTAL SUM:", totalSum)
+
+	// fmt.Println(len(validRooms))
+	for _, room := range validRooms {
+		decryptedName := decryptName(room)
+		fmt.Println(decryptedName)
+		if strings.Contains(decryptedName, "northpole") {
+			fmt.Println("*********************", room.sectorId)
+			break
+		}
+	}
 
 }
 
@@ -136,13 +158,45 @@ func validate(name, hash string) bool {
 
 	// compare to hash
 	comparision := strings.Join(comparisionHash[:len(hash)], "")
-	fmt.Println(comparision, "==", hash, "?")
+	// fmt.Println(comparision, "==", hash, "?")
 	if comparision != hash {
 		return false
 	}
 
 	return true
 }
+
+func decryptName(encrypted Room) string {
+
+	// 26 letters in alphabet
+	// alphabet := []rune("abcdefghijklmnopqrstuvxyz")
+	// fmt.Println(alphabet)
+	a := int('a') //97
+	z := int('z') //122
+
+	runes := []rune(encrypted.name)
+	offset := int(math.Mod(float64(encrypted.sectorId), float64(26)))
+	decryptedRunes := make([]string, len(runes))
+
+	for i, rune := range runes {
+		if rune == '-' {
+			decryptedRunes[i] = " "
+			continue
+		}
+		shifted := int(rune) + offset
+		if shifted > z {
+			shifted = (a - 1) + (shifted - z)
+		}
+		decryptedRunes[i] = string(shifted)
+	}
+
+	decrypted := strings.Join(decryptedRunes, "")
+	// fmt.Println(decrypted)
+
+	return decrypted
+}
+
+/// -------------
 
 // A data structure to hold a key/value pair.
 type Pair struct {
