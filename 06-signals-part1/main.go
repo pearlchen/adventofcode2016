@@ -13,7 +13,7 @@ func main() {
 	// columns := parseInput(loadInput("test.txt")) // expect "easter"
 
 	//real
-	columns := parseInput(loadInput("input.txt")) // expect ???
+	columns := parseInput(loadInput("input.txt")) // expect "umejzgdw"
 
 	fmt.Println(columns)
 
