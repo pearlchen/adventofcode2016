@@ -10,7 +10,7 @@ import (
 func main() {
 
 	//tests
-	// columns := parseInput(loadInput("test.txt")) // expect "easter"
+	// columns := parseInput(loadInput("test.txt")) // expect "advent"
 
 	//real
 	columns := parseInput(loadInput("input.txt")) // expect ???
@@ -109,6 +109,6 @@ func sortMapByValue(m map[string]int) PairList {
 		p[i] = Pair{k, v}
 		i++
 	}
-	sort.Sort(sort.Reverse(p))
+	sort.Sort(p)
 	return p
 }
